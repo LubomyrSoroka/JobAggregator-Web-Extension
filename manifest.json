@@ -1,0 +1,30 @@
+{
+  "manifest_version": 2,
+  "name": "Background Scraper",
+  "version": "1.0",
+  "description": "Runs scraper scripts in the background to bypass browser security restrictions (CORS)",
+  "permissions": [
+    "<all_urls>",
+    "webRequest",
+    "webRequestBlocking",
+    "cookies"
+  ],
+  "background": {
+    "scripts": [
+      "background.js"
+    ],
+    "persistent": true
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
+}
