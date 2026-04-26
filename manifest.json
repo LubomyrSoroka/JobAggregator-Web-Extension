@@ -1,4 +1,9 @@
 {
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "abc@gmail.com"
+    }
+  },
   "manifest_version": 2,
   "name": "Background Scraper",
   "version": "1.0",
