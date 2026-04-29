@@ -26,6 +26,14 @@ chrome.runtime.onConnect.addListener((port) => {
                     console.error("Execution failed in background:", error);
                     port.postMessage({ error: error.message });
                 }
+            } else if (message.type === 'FILE_ACTION') {
+                chrome.runtime.sendNativeMessage('com.jobhunter.scrapers', message.payload, function(response) {
+                    if (chrome.runtime.lastError) {
+                        port.postMessage({ type: 'FILE_RESULT', error: chrome.runtime.lastError.message });
+                    } else {
+                        port.postMessage({ type: 'FILE_RESULT', ...response });
+                    }
+                });
             }
         });
     }

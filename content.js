@@ -4,6 +4,7 @@ window.addEventListener('message', (event) => {
     if (event.source !== window) return;
 
     if (event.data && event.data.type === "enable-debugger") {
+        console.log("enabling debugging")
         chrome.runtime.sendMessage({
             type: 'ENABLE_DEBUGGER',
             payload: event.data.payload
@@ -40,6 +41,25 @@ window.addEventListener('message', (event) => {
                     type_original: 'error',
                     error: chrome.runtime.lastError.message
                 }, '*');
+            }
+        });
+    }
+
+    if (event.data && event.data.type === 'file-action-event') {
+        const payload = event.data.payload;
+        console.log(`sending file action. Type: ${payload.type}`)
+        const port = chrome.runtime.connect({ name: 'scraper-port' });
+        port.postMessage({
+            type: 'FILE_ACTION',
+            payload: payload
+        });
+        port.onMessage.addListener((message) => {
+            if (message.status === 'success') {
+                window.postMessage({
+                    direction: 'file-action-result-web',
+                    ...message
+                }, '*');
+                port.disconnect();
             }
         });
     }
