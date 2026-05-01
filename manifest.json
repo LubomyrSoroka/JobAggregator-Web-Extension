@@ -13,7 +13,8 @@
     "webRequest",
     "webRequestBlocking",
     "cookies",
-    "nativeMessaging"
+    "nativeMessaging",
+    "storage"
   ],
   "background": {
     "scripts": [
