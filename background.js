@@ -2,13 +2,13 @@ chrome.runtime.onConnect.addListener((port) => {
     if (port.name === 'scraper-port') {
         port.onMessage.addListener(async (message) => {
             if (message.type === 'RUN_SCRAPER') {
-                const { scraperName, code, parameters } = message.payload;
+                const { scraperName, code, parameters, seenIds } = message.payload;
 
                 try {
                     // Construct an async function wrapper
                     // We pass helpers to the function so the scraper can use them if needed,
                     // although they are also in the global scope of this service worker.
-                    const runner = new Function('params', `
+                    const runner = new Function('params', 'seenIds', `
                         ${code}
                         if (typeof scrape === 'function') {
                             return scrape(...params);
@@ -17,7 +17,7 @@ chrome.runtime.onConnect.addListener((port) => {
                         //# sourceURL=scraper-${scraperName.replace(/\s+/g, '-')}.js
                     `);
 
-                    for await (let jobs of runner(parameters)) {
+                    for await (let jobs of runner(parameters, seenIds)) {
                         port.postMessage({ result: jobs });
                     }
                     port.postMessage({ done: true });
@@ -27,7 +27,7 @@ chrome.runtime.onConnect.addListener((port) => {
                     port.postMessage({ error: error.message });
                 }
             } else if (message.type === 'FILE_ACTION') {
-                chrome.runtime.sendNativeMessage('com.jobhunter.scrapers', message.payload, function(response) {
+                chrome.runtime.sendNativeMessage('com.jobhunter.scrapers', message.payload, function (response) {
                     if (chrome.runtime.lastError) {
                         port.postMessage({ type: 'FILE_RESULT', error: chrome.runtime.lastError.message });
                     } else {
