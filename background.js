@@ -2,7 +2,7 @@ chrome.runtime.onConnect.addListener((port) => {
     if (port.name === 'scraper-port') {
         port.onMessage.addListener(async (message) => {
             if (message.type === 'RUN_SCRAPER') {
-                const { scraperName, code, parameters, seenIds } = message.payload;
+                const { scraperName, code, parameters, seenIds, scraperId } = message.payload;
 
                 try {
                     // Construct an async function wrapper
@@ -18,14 +18,15 @@ chrome.runtime.onConnect.addListener((port) => {
                     `);
 
                     for await (let jobs of runner(parameters, seenIds)) {
-                        port.postMessage({ result: jobs });
+                        port.postMessage({ scraperId, result: jobs });
                     }
-                    port.postMessage({ done: true });
+                    port.postMessage({ scraperId, done: true });
 
                 } catch (error) {
                     console.error("Execution failed in background:", error);
-                    port.postMessage({ error: error.message });
+                    port.postMessage({ scraperId, error: error.message });
                 }
+
             } else if (message.type === 'FILE_ACTION') {
                 chrome.runtime.sendNativeMessage('com.jobhunter.scrapers', message.payload, function (response) {
                     if (chrome.runtime.lastError) {
