@@ -10,6 +10,12 @@ window.addEventListener('message', (event) => {
             payload: event.data.payload
         });
     }
+    if (event.data && event.data.type === 'stop-scraper') {
+        chrome.runtime.sendMessage({
+            type: "STOP_SCRAPER",
+            scraperId: event.data.scraperId
+        })
+    }
 
     if (event.data && event.data.type === 'run-scraper-event') {
         const payload = event.data.payload;

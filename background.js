@@ -1,3 +1,4 @@
+const stopScraper = new Set();
 chrome.runtime.onConnect.addListener((port) => {
     if (port.name === 'scraper-port') {
         port.onMessage.addListener(async (message) => {
@@ -18,6 +19,9 @@ chrome.runtime.onConnect.addListener((port) => {
                     `);
 
                     for await (let jobs of runner(parameters, seenIds)) {
+                        if (stopScraper.has(scraperId)) {
+                            break;
+                        }
                         port.postMessage({ scraperId, result: jobs });
                     }
                     port.postMessage({ scraperId, done: true });
@@ -57,6 +61,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
         // This keeps it in memory without running it!
         debugCache.set(scraperName, runner);
-
+    }
+    if (request.type = 'STOP_SCRAPER') {
+        stopScraper.add(request.scraperId);
     }
 });
+
