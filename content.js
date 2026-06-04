@@ -19,7 +19,6 @@ window.addEventListener('message', (event) => {
 
     if (event.data && event.data.type === 'run-scraper-event') {
         const payload = event.data.payload;
-
         // Open a long-lived connection to the background script
         const port = chrome.runtime.connect({ name: 'scraper-port' });
 

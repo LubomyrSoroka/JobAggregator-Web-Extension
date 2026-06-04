@@ -4,6 +4,7 @@ chrome.runtime.onConnect.addListener((port) => {
         port.onMessage.addListener(async (message) => {
             if (message.type === 'RUN_SCRAPER') {
                 const { scraperName, code, parameters, seenIds, scraperId } = message.payload;
+                stopScraper.delete(scraperId);
 
                 try {
                     // Construct an async function wrapper
@@ -62,7 +63,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         // This keeps it in memory without running it!
         debugCache.set(scraperName, runner);
     }
-    if (request.type = 'STOP_SCRAPER') {
+    if (request.type === 'STOP_SCRAPER') {
         stopScraper.add(request.scraperId);
     }
 });
